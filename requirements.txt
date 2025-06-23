@@ -5,3 +5,4 @@ cairosvg
 matplotlib
 pillow
 pandas
+huggingface_hub
