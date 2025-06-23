@@ -1,7 +1,10 @@
 import io
+import os
+import platform
+import urllib.request
+import zipfile
 import chess
 import chess.pgn
-import platform
 from stockfish import Stockfish
 from utils import (
     get_opening_name,
@@ -12,9 +15,27 @@ from utils import (
 )
 
 class ChessAnalyzer:
-    def __init__(self, uploaded_file, stockfish_path=r"E:\ML\chess_game_analyzer\stockfish\stockfish.exe"):
+    def __init__(self, uploaded_file, stockfish_path=None):
         pgn_text = uploaded_file.read().decode("utf-8")
         self.pgn_io = io.StringIO(pgn_text)
+
+        if platform.system() == "Windows":
+            # Use local Windows path (works locally)
+            stockfish_path = r"stockfish/stockfish.exe"
+        else:
+            # Hugging Face/Linux
+            if not os.path.exists("stockfish"):
+                print("Downloading Stockfish for Linux...")
+                url = "https://github.com/official-stockfish/Stockfish/releases/download/sf_15/stockfish-ubuntu-x86-64.zip"
+                urllib.request.urlretrieve(url, "stockfish.zip")
+                with zipfile.ZipFile("stockfish.zip", "r") as zip_ref:
+                    zip_ref.extractall("stockfish_folder")
+                # Locate the binary and make it executable
+                for root, dirs, files in os.walk("stockfish_folder"):
+                    for file in files:
+                        if "stockfish" in file.lower():
+                            stockfish_path = os.path.join(root, file)
+                            os.system(f"chmod +x {stockfish_path}")
 
         self.stockfish = Stockfish(path=stockfish_path)
         self.game = chess.pgn.read_game(self.pgn_io)
