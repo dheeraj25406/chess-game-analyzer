@@ -1,6 +1,7 @@
 import io
 import chess
 import chess.pgn
+import platform
 from stockfish import Stockfish
 from utils import (
     get_opening_name,
