@@ -1,0 +1,7 @@
+streamlit
+python-chess
+stockfish
+cairosvg
+matplotlib
+pillow
+pandas
